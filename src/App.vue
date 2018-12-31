@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <img alt="SPECIAL logo" src="./assets/SPECIAL.png">
+    <img alt="SPECIAL logo" :src="require('./assets/SPECIAL.png')">
     <Character/>
   </div>
 </template>
