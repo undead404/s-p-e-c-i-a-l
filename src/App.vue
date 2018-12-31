@@ -1,14 +1,20 @@
 <template>
   <div id="app">
-    <img alt="SPECIAL logo" :src="require('./assets/SPECIAL.png')">
+    <img alt="SPECIAL logo" :src="logo">
     <Character/>
   </div>
 </template>
 
 <script>
 import Character from "./components/Character.vue";
+import specialLogo from "./assets/SPECIAL.png";
 
 export default {
+  data: function() {
+    return {
+      logo: specialLogo
+    };
+  },
   name: "app",
   components: {
     Character
