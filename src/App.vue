@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <img alt="SPECIAL logo" src="/SPECIAL.png">
+    <img alt="SPECIAL logo" src="SPECIAL.png">
     <Character/>
   </div>
 </template>
