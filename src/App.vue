@@ -6,19 +6,19 @@
 </template>
 
 <script>
-import Character from "./components/Character.vue";
+import Character from './components/Character.vue';
 
 export default {
-  name: "app",
+  name: 'app',
   components: {
-    Character
-  }
+    Character,
+  },
 };
 </script>
 
 <style>
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

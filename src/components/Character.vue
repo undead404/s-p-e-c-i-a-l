@@ -40,24 +40,26 @@
 </template>
 
 <script>
-import noConstraintConflict from "../functions/no-constraint-conflict";
-import Question from "../classes/question";
-import questions from "../assets/questions.json";
+import noConstraintConflict from '../functions/no-constraint-conflict';
+import Question from '../classes/question';
+import questions from '../assets/questions.csv';
+
+console.info(questions);
 
 export default {
   computed: {
     constraints: function() {
       return [
         ...this.agreed.map(question => question.getConstraint(true)),
-        ...this.disagreed.map(question => question.getConstraint(false))
+        ...this.disagreed.map(question => question.getConstraint(false)),
       ];
     },
     currentQuestionText: function() {
       if (this.currentQuestion === undefined) {
-        return "No more questions";
+        return 'No more questions';
       }
       return this.currentQuestion.text;
-    }
+    },
   },
   created: function() {
     this.showNextQuestion();
@@ -74,8 +76,8 @@ export default {
       c: 5,
       i: 5,
       a: 5,
-      l: 5
-    }
+      l: 5,
+    },
   }),
   methods: {
     applyConstraint(constraint) {
@@ -91,18 +93,18 @@ export default {
       }
       this.special = {
         ...this.special,
-        ...specialChange
+        ...specialChange,
       };
     },
     canBeAsked(question) {
       return (
         noConstraintConflict([
           ...this.constraints,
-          question.getConstraint(true)
+          question.getConstraint(true),
         ]) &&
         noConstraintConflict([
           ...this.constraints,
-          question.getConstraint(false)
+          question.getConstraint(false),
         ])
       );
     },
@@ -119,7 +121,7 @@ export default {
         this.currentQuestion.asked = true;
       }
       let notUsedQuestions = this.questions.filter(
-        question => !question.asked && this.canBeAsked(question)
+        question => !question.asked && this.canBeAsked(question),
       );
       if (notUsedQuestions.length === 0) {
         this.currentQuestion = undefined;
@@ -131,12 +133,12 @@ export default {
       this.applyConstraint(this.currentQuestion.getConstraint(true));
       this.agreed.push(this.currentQuestion);
       this.showNextQuestion();
-    }
+    },
   },
-  name: "Character",
+  name: 'Character',
   props: {
     // msg: String
-  }
+  },
 };
 </script>
 
