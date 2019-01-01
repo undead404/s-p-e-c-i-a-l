@@ -44,8 +44,6 @@ import noConstraintConflict from '../functions/no-constraint-conflict';
 import Question from '../classes/question';
 import questions from '../assets/questions.csv';
 
-console.info(questions);
-
 export default {
   computed: {
     constraints: function() {
