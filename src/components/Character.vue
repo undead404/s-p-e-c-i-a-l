@@ -1,37 +1,15 @@
 <template>
   <div class="character">
     <div class="status">
-      <div>
-        <span class="letter">S</span>
-        {{this.special.s}}
-      </div>
-      <div>
-        <span class="letter">P</span>
-        {{this.special.p}}
-      </div>
-      <div>
-        <span class="letter">E</span>
-        {{this.special.e}}
-      </div>
-      <div>
-        <span class="letter">C</span>
-        {{this.special.c}}
-      </div>
-      <div>
-        <span class="letter">I</span>
-        {{this.special.i}}
-      </div>
-      <div>
-        <span class="letter">A</span>
-        {{this.special.a}}
-      </div>
-      <div>
-        <span class="letter">L</span>
-        {{this.special.l}}
+      <div v-for="property in PROPERTIES" :key="property">
+        <span class="letter">{{property.toUpperCase()}}</span>
+        {{special[property]}}
       </div>
     </div>
-    <div class="question-text">{{this.currentQuestionText}}</div>
-    <div class="btns">
+    <div class="points-left">Залишилось очок: {{this.pointsLeft}}</div>
+    <div v-if="this.ready">This character is ready, you can use it.</div>
+    <div class="question-text" v-if="!this.ready">{{this.currentQuestionText}}</div>
+    <div class="btns" v-if="!this.ready">
       <button @click="this.yes">Yes</button>
       <button @click="this.no">No</button>
       <button @click="this.notSure">Not sure</button>
@@ -40,9 +18,14 @@
 </template>
 
 <script>
+import getRandIntBetween from '../functions/rand-int-between';
 import noConstraintConflict from '../functions/no-constraint-conflict';
 import Question from '../classes/question';
 import questions from '../assets/questions.csv';
+
+const LOWER = 0;
+const MAX_POINTS = 40;
+const UPPER = 1;
 
 export default {
   computed: {
@@ -52,11 +35,48 @@ export default {
         ...this.disagreed.map(question => question.getConstraint(false)),
       ];
     },
+    constraintsCombined: function() {
+      const val = {};
+      this.PROPERTIES.forEach(property => {
+        val[property] = [1, 10];
+      });
+      this.constraints.forEach(constraint => {
+        if (constraint.from) {
+          if (val[constraint.property][LOWER] < constraint.from) {
+            val[constraint.property][LOWER] = constraint.from;
+          }
+        }
+        if (constraint.to) {
+          if (val[constraint.property][UPPER] > constraint.to) {
+            val[constraint.property][UPPER] = constraint.to;
+          }
+        }
+      });
+      return val;
+    },
     currentQuestionText: function() {
       if (this.currentQuestion === undefined) {
         return 'No more questions';
       }
       return this.currentQuestion.text;
+    },
+    pointsLeft: function() {
+      return (
+        MAX_POINTS - Object.values(this.special).reduce((a, b) => a + b, 0)
+      );
+    },
+    ready: function() {
+      return this.pointsLeft === 0;
+    },
+    special: function() {
+      const val = {};
+      'special'.split('').forEach(property => {
+        val[property] = getRandIntBetween.apply(
+          null,
+          this.constraintsCombined[property],
+        );
+      });
+      return val;
     },
   },
   created: function() {
@@ -67,34 +87,11 @@ export default {
     currentQuestion: undefined,
     disagreed: [],
     questions: questions.map(question => new Question(question)),
-    special: {
-      s: 5,
-      p: 5,
-      e: 5,
-      c: 5,
-      i: 5,
-      a: 5,
-      l: 5,
-    },
+    PROPERTIES: 'special'.split(''),
   }),
   methods: {
-    applyConstraint(constraint) {
-      const specialChange = {};
-      if (
-        constraint.from &&
-        this.special[constraint.property] < constraint.from
-      ) {
-        specialChange[constraint.property] = constraint.from;
-      }
-      if (constraint.to && this.special[constraint.property] > constraint.to) {
-        specialChange[constraint.property] = constraint.to;
-      }
-      this.special = {
-        ...this.special,
-        ...specialChange,
-      };
-    },
     canBeAsked(question) {
+      if (question.asked) return false;
       return (
         noConstraintConflict([
           ...this.constraints,
@@ -107,7 +104,6 @@ export default {
       );
     },
     no: function() {
-      this.applyConstraint(this.currentQuestion.getConstraint(false));
       this.disagreed.push(this.currentQuestion);
       this.showNextQuestion();
     },
@@ -118,8 +114,11 @@ export default {
       if (this.currentQuestion) {
         this.currentQuestion.asked = true;
       }
-      let notUsedQuestions = this.questions.filter(
-        question => !question.asked && this.canBeAsked(question),
+      if (this.ready) {
+        this.currentQuestion = undefined;
+      }
+      let notUsedQuestions = this.questions.filter(question =>
+        this.canBeAsked(question),
       );
       if (notUsedQuestions.length === 0) {
         this.currentQuestion = undefined;
@@ -128,7 +127,6 @@ export default {
         notUsedQuestions[Math.floor(Math.random() * notUsedQuestions.length)];
     },
     yes: function() {
-      this.applyConstraint(this.currentQuestion.getConstraint(true));
       this.agreed.push(this.currentQuestion);
       this.showNextQuestion();
     },
