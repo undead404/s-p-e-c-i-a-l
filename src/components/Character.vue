@@ -2,17 +2,19 @@
   <div class="character">
     <div class="status">
       <div v-for="property in PROPERTIES" :key="property">
-        <span class="letter">{{property.toUpperCase()}}</span>
-        {{special[property]}}
+        <v-badge left>
+        <span class="letter" slot="badge">{{property.toUpperCase()}}</span>
+        <v-rating length="10" v-model="special[property]" small readonly :title="special[property]"></v-rating>
+        </v-badge>
       </div>
     </div>
     <div class="points-left">Залишилось очок: {{this.pointsLeft}}</div>
     <div v-if="this.ready">This character is ready, you can use it.</div>
     <div class="question-text" v-if="!this.ready">{{this.currentQuestionText}}</div>
     <div class="btns" v-if="!this.ready">
-      <button @click="this.yes">Yes</button>
-      <button @click="this.no">No</button>
-      <button @click="this.notSure">Not sure</button>
+      <v-btn color="success" @click="this.yes">Yes</v-btn>
+      <v-btn color="error" @click="this.no">No</v-btn>
+      <v-btn color="warning" @click="this.notSure">Not sure</v-btn>
     </div>
   </div>
 </template>
